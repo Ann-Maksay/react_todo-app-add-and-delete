@@ -6,11 +6,21 @@ import { TodoItem } from '../TodoItem/TodoItem';
 type Props = {
   todos: Todo[];
   filterOption: FilterOption;
+  tempTodo: Todo | null;
+  onDelete: (id: number) => void;
+  loadingTodoIds: number[];
+  isNewTodoLoading: boolean;
 };
 
-export const TodoList: React.FC<Props> = ({ todos, filterOption }) => {
+export const TodoList: React.FC<Props> = ({
+  todos,
+  filterOption,
+  tempTodo,
+  onDelete,
+  loadingTodoIds,
+  isNewTodoLoading,
+}) => {
   const [editingTodoId] = useState<number | null>(null);
-  const [loadingTodoIds] = useState<number[]>([]);
 
   const filtredTodos = useMemo(
     () => getFilteredTodos(todos, filterOption),
@@ -26,9 +36,18 @@ export const TodoList: React.FC<Props> = ({ todos, filterOption }) => {
             todo={todo}
             isEditing={editingTodoId === todo.id}
             isLoading={loadingTodoIds.includes(todo.id)}
+            onDelete={onDelete}
           />
         );
       })}
+      {tempTodo && (
+        <TodoItem
+          todo={tempTodo}
+          isEditing={false}
+          isLoading={isNewTodoLoading}
+          onDelete={onDelete}
+        />
+      )}
     </section>
   );
 };

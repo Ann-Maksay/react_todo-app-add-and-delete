@@ -1,8 +1,6 @@
-/* eslint-disable jsx-a11y/label-has-associated-control */
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useMemo, useState } from 'react';
 import { Header, Footer, Notification, TodoList } from './components';
-import { getTodos } from './api/todos';
+import { USER_ID, getTodos, addTodo, deleteTodo } from './api/todos';
 import { FilterOption, Todo, Error } from './types';
 
 export const App: React.FC = () => {
@@ -11,6 +9,10 @@ export const App: React.FC = () => {
   const [filterOption, setFilterOption] = useState<FilterOption>(
     FilterOption.all,
   );
+  const [todoInputValue, setTodoInputValue] = useState('');
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
 
   const todosAmount = useMemo(() => todos.length, [todos]);
   const uncompletedTodosAmount = useMemo(
@@ -24,6 +26,52 @@ export const App: React.FC = () => {
     setError(message);
 
     setTimeout(handleResetError, 3000);
+  };
+
+  const handleSubmitTodo = (title: string) => {
+    if (!title) {
+      handleError(Error.EMPTY_TITLE);
+
+      return;
+    }
+
+    const newTodo = {
+      title: title.trim(),
+      userId: USER_ID,
+      completed: false,
+    };
+
+    setTempTodo({ ...newTodo, id: 0 });
+
+    setIsLoading(true);
+
+    addTodo(newTodo)
+      .then(response => {
+        setTodos(currentTodos => [...currentTodos, response]);
+        setTodoInputValue('');
+      })
+      .catch(() => {
+        handleError(Error.ADDING_TODO);
+      })
+      .finally(() => {
+        setIsLoading(false);
+        setTempTodo(null);
+      });
+  };
+
+  const handleDeleteTodo = (id: number) => {
+    setLoadingTodoIds(current => [...current, id]);
+
+    deleteTodo(id)
+      .then(() =>
+        setTodos(currentTodos => currentTodos.filter(todo => todo.id !== id)),
+      )
+      .catch(() => handleError(Error.DELETING_TODO))
+      .finally(() => {
+        setLoadingTodoIds(current =>
+          current.filter(deletedId => deletedId !== id),
+        );
+      });
   };
 
   useEffect(() => {
@@ -46,11 +94,22 @@ export const App: React.FC = () => {
         <Header
           todosAmount={todosAmount}
           uncompletedTodosAmount={uncompletedTodosAmount}
+          isLoading={isLoading}
+          title={todoInputValue}
+          onTitleChange={setTodoInputValue}
+          onSubmit={handleSubmitTodo}
         />
 
         {!!todosAmount && (
           <>
-            <TodoList todos={todos} filterOption={filterOption} />
+            <TodoList
+              todos={todos}
+              filterOption={filterOption}
+              tempTodo={tempTodo}
+              onDelete={handleDeleteTodo}
+              loadingTodoIds={loadingTodoIds}
+              isNewTodoLoading={isLoading}
+            />
 
             <Footer
               filterOption={filterOption}

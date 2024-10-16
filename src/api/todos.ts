@@ -7,4 +7,10 @@ export const getTodos = () => {
   return client.get<Todo[]>(`/todos?userId=${USER_ID}`);
 };
 
-// Add more methods here
+export const addTodo = (newTodo: Omit<Todo, 'id'>) => {
+  return client.post<Todo>('/todos', newTodo);
+};
+
+export const deleteTodo = (id: number) => {
+  return client.delete(`/todos/${id}`);
+};

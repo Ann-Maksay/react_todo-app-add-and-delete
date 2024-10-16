@@ -6,10 +6,16 @@ type Props = {
   todo: Todo;
   isEditing: boolean;
   isLoading: boolean;
+  onDelete: (id: number) => void;
 };
 
-export const TodoItem: React.FC<Props> = ({ todo, isEditing, isLoading }) => {
-  const { completed, title } = todo;
+export const TodoItem: React.FC<Props> = ({
+  todo,
+  isEditing,
+  isLoading,
+  onDelete,
+}) => {
+  const { id, completed, title } = todo;
 
   return (
     <div
@@ -43,7 +49,14 @@ export const TodoItem: React.FC<Props> = ({ todo, isEditing, isLoading }) => {
             {title}
           </span>
 
-          <button type="button" className="todo__remove" data-cy="TodoDelete">
+          <button
+            type="button"
+            className="todo__remove"
+            data-cy="TodoDelete"
+            onClick={() => {
+              onDelete(id);
+            }}
+          >
             ×
           </button>
         </>
