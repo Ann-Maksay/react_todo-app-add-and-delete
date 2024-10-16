@@ -19,6 +19,17 @@ export const App: React.FC = () => {
     () => todos.reduce((amount, todo) => amount + (todo.completed ? 0 : 1), 0),
     [todos],
   );
+  const completedIds = useMemo(
+    () =>
+      todos.reduce<number[]>((ids, todo) => {
+        if (todo.completed) {
+          ids.push(todo.id);
+        }
+
+        return ids;
+      }, []),
+    [todos],
+  );
 
   const handleResetError = () => setError(Error.DEFAULT);
 
@@ -76,6 +87,10 @@ export const App: React.FC = () => {
       });
   };
 
+  const handleDeleteCompleted = () => {
+    completedIds.forEach(handleDeleteTodo);
+  };
+
   useEffect(() => {
     handleResetError();
 
@@ -118,6 +133,7 @@ export const App: React.FC = () => {
               setFilterOption={setFilterOption}
               todosAmount={todosAmount}
               uncompletedTodosAmount={uncompletedTodosAmount}
+              onDeleteCompleted={handleDeleteCompleted}
             />
           </>
         )}

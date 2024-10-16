@@ -7,12 +7,14 @@ type Props = {
   setFilterOption: Dispatch<SetStateAction<FilterOption>>;
   todosAmount: number;
   uncompletedTodosAmount: number;
+  onDeleteCompleted: () => void;
 };
 export const Footer: React.FC<Props> = ({
   filterOption,
   setFilterOption,
   todosAmount,
   uncompletedTodosAmount,
+  onDeleteCompleted,
 }) => {
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -27,6 +29,7 @@ export const Footer: React.FC<Props> = ({
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
         disabled={uncompletedTodosAmount === todosAmount}
+        onClick={onDeleteCompleted}
       >
         Clear completed
       </button>
