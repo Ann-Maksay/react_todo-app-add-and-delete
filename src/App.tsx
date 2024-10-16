@@ -60,6 +60,7 @@ export const App: React.FC = () => {
   };
 
   const handleDeleteTodo = (id: number) => {
+    setIsLoading(true);
     setLoadingTodoIds(current => [...current, id]);
 
     deleteTodo(id)
@@ -71,6 +72,7 @@ export const App: React.FC = () => {
         setLoadingTodoIds(current =>
           current.filter(deletedId => deletedId !== id),
         );
+        setIsLoading(false);
       });
   };
 
